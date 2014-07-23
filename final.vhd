@@ -34,13 +34,18 @@ ENTITY projeto IS
 End projeto;
 -------------------------------------------------------------------
 ARCHITECTURE comportamental OF projeto IS
-
+	-------------------| Variaveis de video |--------------------
 	SIGNAL Hactive, Vactive, dena,COR,um_quarto_pixel_clk    : std_LOGIC;
 	SIGNAL Hcount,Vcount                                     : std_logic_vector(9 downto 0);
 	SIGNAL liga_mem                  						 : std_logic_vector(13 downto 0);
 	SIGNAL mem_x                                             : std_logic_vector(7 downto 0);
 	SIGNAL mem_y                                             : std_logic_vector(9 downto 0);
 	SIGNAL Vsync_count                                       : std_logic_vector(5 downto 0);
+	-------------------| Variaveis teclado |----------------------
+	signal escolha : std_logic_vector(1 downto 0);
+	signal data, dout : bit_vector( 10 downto 0);
+	signal idle,error: bit; 
+	signal deb_ps2clk,deb_ps2data : bit;  
 
 BEGIN
 
@@ -50,7 +55,7 @@ BEGIN
 	lpm_widthad         => 14, 
 	lpm_outdata         => "unregistered",
 	lpm_address_control => "registered",
-	lpm_file            => "boca5.mif", 
+	lpm_file            => "mif1.mif", 
 	lpm_width           => 1) 
 
 	PORT MAP( inclock => pixel_clk, address=> liga_mem, q=> COR);
@@ -61,7 +66,7 @@ BEGIN
 	lpm_widthad         => 14,
 	lpm_outdata         => "unregistered",
 	lpm_address_control => "registered",
-	lpm_file            => "boca4.mif",
+	lpm_file            => "mif2.mif",
 	lpm_width           => 1)
 
 	PORT MAP( inclock => pixel_clk, address=> liga_mem, q=> COR);
@@ -72,7 +77,7 @@ BEGIN
 	lpm_widthad         => 14, 
 	lpm_outdata         => "unregistered",
 	lpm_address_control => "registered",
-	lpm_file            => "boca0.mif",
+	lpm_file            => "mif3.mif",
 	lpm_width           => 1)
 
 	PORT MAP( inclock => pixel_clk, address=> liga_mem, q=> COR);
@@ -83,7 +88,7 @@ BEGIN
 	lpm_widthad         => 14,
 	lpm_outdata         => "unregistered",
 	lpm_address_control => "registered",
-	lpm_file            => "caolho.mif",
+	lpm_file            => "mif4.mif",
 	lpm_width           => 1)
 
 	PORT MAP( inclock => pixel_clk, address=> liga_mem, q=> COR);
@@ -104,8 +109,8 @@ BEGIN
 			END IF;
 		END IF;
 	end Process;
-	------------------------------------------------------------------------------------
 
+	------------| Processos de sincronia vertical e horizontal |------------------------
 	Process (pixel_clk)
 	Begin
 		IF (pixel_clk'EVENT AND pixel_clk ='1')THEN
@@ -122,7 +127,7 @@ BEGIN
 			END IF	 ;		 
 		END IF	 ;
 	end Process; 
-
+	
 	Process (Hsync)
 	Begin
 		IF (Hsync'EVENT AND Hsync ='0')THEN
@@ -140,7 +145,7 @@ BEGIN
 		END IF;
 	end Process; 
 
-	Process (Vsync) -- Sincronia Vertical
+	Process (Vsync)
 	Begin
 		IF (Vsync'EVENT AND Vsync ='0')THEN
 			Vsync_count <= Vsync_count + '1';
@@ -149,10 +154,97 @@ BEGIN
 			END IF;		 
 		END IF;
 	end Process;
-
 	dena <= Hactive and Vactive;
+	
+	--------------------| Processos do teclado |--------------------------------------
+	
+	process(clk) variable count: integer range 0 to deb_cycles; -- debouncer do ps2_clk
+	begin
+		if(clk'event and clk = '1') then
+			if (deb_ps2clk =ps2clk) then
+				count := 0 ;
+			else
+				count := count + 1 ;
+				if (count = deb_cycles) then
+					deb_ps2clk <= ps2clk ;
+					count := 0 ; 
+				end if;		 
+			end if;
+		end if;
+	end process;
+	
+	process(clk) variable count: integer range 0 to deb_cycles; -- debouncer do ps2_data
+	begin
+		if(clk'event and clk = '1') then
+			if ( deb_ps2data =ps2data) then
+				count := 0 ;
+			else
+				count := count + 1 ;
+				if (count = deb_cycles) then
+					deb_ps2data <= ps2data ;
+					count := 0 ; 
+				end if;		 
+			end if;
+		end if;
+	end process;	
+	
+	process(clk) variable count: integer range 0 to idle_cycles; -- Detecta estado de inatividade do teclado
+	begin
+		if(clk'event and clk = '0') then
+			if ( deb_ps2data = '0') then
+				idle <= '0' ;
+				count := 0 ;
+			elsif  (deb_ps2clk= '1') then
+				count := count +1;
+				if ( count = idle_cycles ) then idle <= '1' ;
+				end if;
+			else
+				count := 0 ;
+			end if;
+		end if;	 
+	end process;
+	
+	process ( deb_ps2clk) variable i: integer range 0 to 15; -- Recebe ps2_data do teclado
+	begin
+		if(deb_ps2clk'event and deb_ps2clk = '0') then
+			if( idle='1') then
+				i:= 0;
+			else 
+				data(i) <= deb_ps2data;
+				i:= i + 1 ;
+				if ( i = 11)then
+					i := 0 ;
+					dout <= data;
+				end if;
+			end if;
+		end if;	
+	end process;
+	
+	process(dout) -- Checa paridade do sinal recebido do teclado
+	begin
+		if( dout(0) = '0' and dout(10) ='1' and 
+		( dout(1) xor dout(2) xor dout(3) xor dout(4) xor dout(5) xor 
+		dout(6) xor dout(7) xor dout(8) xor dout(9) )= '1') then
+			error <= '0' ;
+		else
+			error <= '1' ; 
+		end if ;
+	end process;	
 
-	Process (Hsync,Vsync,Vactive,Hactive, dena,tecla_digitada) Variable line_counter: Integer Range 0 to Vc;
+	process (dout, error) -- Verifica qual a tecla foi pressionada
+	begin
+		if (error ='0') then
+			case  dout( 8 downto 1) is
+				when "01000101" => escolha <= "00";
+				when "00010110" => escolha <= "01"; 
+				when "00011110" => escolha <= "10";
+				when "00100110" => escolha <= "11";
+			end case;
+		end if;
+	end process;
+
+	-------------------------------| Gera Vídeo |-------------------------------------
+	Process (Hsync,Vsync,Vactive,Hactive, dena,escolha) Variable line_counter: Integer Range 0 to Vc;
 	Begin
 
 		IF(Vsync ='0') THEN
