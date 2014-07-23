@@ -29,7 +29,7 @@ ENTITY projeto IS
 		pixel_clk           : BUFFER STD_LOGIC; -- Clock de video
 		Hsync, Vsync        : BUFFER STD_LOGIC; -- Sincronia vertical e horizontal
 		R, G, B             : OUT STD_LOGIC_VECTOR( 3 DOWNTO 0); -- Define R,G e B como vetores de 4 bits(intensidade da respectiva cor)
-		tecla_digitada: out BIT_VECTOR(6 downto 0) -- Vetor de 7 bits da saida do teclado
+		tecla_digitada      : OUT BIT_VECTOR(6 downto 0) -- Vetor de 7 bits da saida do teclado
 	);
 End projeto;
 -------------------------------------------------------------------
@@ -152,7 +152,7 @@ BEGIN
 
 	dena <= Hactive and Vactive;
 
-	Process (Hsync,Vsync,Vactive,Hactive, dena) Variable line_counter: Integer Range 0 to Vc;
+	Process (Hsync,Vsync,Vactive,Hactive, dena,tecla_digitada) Variable line_counter: Integer Range 0 to Vc;
 	Begin
 
 		IF(Vsync ='0') THEN
