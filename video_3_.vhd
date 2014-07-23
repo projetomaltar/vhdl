@@ -46,44 +46,44 @@ BEGIN
 	rom1: lpm_rom
 	generic MAP
 	(
-	lpm_widthad         => 14, --modificado maltar
+	lpm_widthad         => 14, 
 	lpm_outdata         => "unregistered",
 	lpm_address_control => "registered",
-	lpm_file            => "boca5.mif", -- data file
-	lpm_width           => 1) -- data width
+	lpm_file            => "boca5.mif", 
+	lpm_width           => 1) 
 
 	PORT MAP( inclock => pixel_clk, address=> liga_mem, q=> COR_video);
 	--------------------------------------------------------------
 	rom2: lpm_rom
 	generic MAP
 	(
-	lpm_widthad         => 14, --modificado maltar
+	lpm_widthad         => 14,
 	lpm_outdata         => "unregistered",
 	lpm_address_control => "registered",
-	lpm_file            => "boca4.mif", -- data file
-	lpm_width           => 1) -- data width
+	lpm_file            => "boca4.mif",
+	lpm_width           => 1)
 
 	PORT MAP( inclock => pixel_clk, address=> liga_mem, q=> COR_video);
 	-------------------------------------------------------------------------
 	rom3: lpm_rom
 	generic MAP
 	(
-	lpm_widthad         => 14, --modificado maltar
+	lpm_widthad         => 14, 
 	lpm_outdata         => "unregistered",
 	lpm_address_control => "registered",
-	lpm_file            => "boca0.mif", -- data file
-	lpm_width           => 1) -- data width
+	lpm_file            => "boca0.mif",
+	lpm_width           => 1)
 
 	PORT MAP( inclock => pixel_clk, address=> liga_mem, q=> COR_video);
 	--------------------------------------------------------------
 	rom4: lpm_rom
 	generic MAP
 	(
-	lpm_widthad         => 14, --modificado maltar
+	lpm_widthad         => 14,
 	lpm_outdata         => "unregistered",
 	lpm_address_control => "registered",
-	lpm_file            => "caolho.mif", -- data file
-	lpm_width           => 1) -- data width
+	lpm_file            => "caolho.mif",
+	lpm_width           => 1)
 
 	PORT MAP( inclock => pixel_clk, address=> liga_mem, q=> COR_video);
 
@@ -151,16 +151,15 @@ BEGIN
 
 	dena <= Hactive and Vactive;
 
-	Process (Hsync,Vsync,Vactive,Hactive, dena)
-	Variable line_counter: Integer Range 0 to Vc ;
+	Process (Hsync,Vsync,Vactive,Hactive, dena) Variable line_counter: Integer Range 0 to Vc;
 	Begin
 
 		IF(Vsync ='0') THEN
-		line_counter := 0;
+			line_counter := 0;
 		elsif (Hsync'EVENT AND Hsync ='1')then
-		if(Vactive = '1') Then
-		   line_counter := line_counter + 1 ;    
-		end if;
+			if(Vactive = '1') Then
+			   line_counter := line_counter + 1 ;    
+			end if;
 		END IF;
 
 		if (vactive='1') then
@@ -176,22 +175,18 @@ BEGIN
 		R <= (others => '0') ;
 
 		IF (dena ='1') then
-		if (Hcount  >= Hc ) then               
-		 mem_x <= "00000000" ;
-		 G <= '0000';
+			IF (Hcount  >= Hc ) then               
+				mem_x <= "00000000" ;
+				G <= '0000';
 
-		elsif (um_quarto_pixel_clk'EVENT AND um_quarto_pixel_clk ='1')THEN
-			 mem_x <= mem_x + '1';
-
-		IF (Vsync_count< ng0) Then
-			G <= '1111';
-		END IF	 ;		 
-
-		end if;
+			ELSIF (um_quarto_pixel_clk'EVENT AND um_quarto_pixel_clk ='1') then
+				mem_x <= mem_x + '1';
+				IF (Vsync_count< ng0) Then
+					G <= '1111';
+				END IF	 ;		 
+			END IF;
 		else
-
-		G <= '0000';
-
+			G <= '0000';
 		END IF;
 
 	End Process;
