@@ -68,7 +68,7 @@ begin
 	repeat
 		readln(original,temp);
 		a(temp);
-		enable:= 1;
+		if(enable = 0) then enable:= 1;
 	until eof(original);
 	
 	writeln('============================');
