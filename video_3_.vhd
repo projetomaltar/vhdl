@@ -163,12 +163,12 @@ BEGIN
 		END IF;
 
 		if (vactive='1') then
-		if( line_counter >= 480)
-		  then
-			 mem_y <= "0000000000" ;
-		  elsif (Hsync'EVENT AND Hsync ='1') THEN  
-			 mem_y <= mem_y +'1' ;
-		end if;
+			if( line_counter >= 480)
+			  then
+				 mem_y <= "0000000000" ;
+			  elsif (Hsync'EVENT AND Hsync ='1') THEN  
+				 mem_y <= mem_y +'1' ;
+			end if;
 		end if;
 
 		B <= (others => '0') ;
@@ -177,16 +177,15 @@ BEGIN
 		IF (dena ='1') then
 			IF (Hcount  >= Hc ) then               
 				mem_x <= "00000000" ;
-				G <= '0000';
-
+				G <= "0000";
 			ELSIF (um_quarto_pixel_clk'EVENT AND um_quarto_pixel_clk ='1') then
 				mem_x <= mem_x + '1';
 				IF (Vsync_count< ng0) Then
-					G <= '1111';
+					G <= "1111";
 				END IF	 ;		 
 			END IF;
 		else
-			G <= '0000';
+			G <= "0000";
 		END IF;
 
 	End Process;
