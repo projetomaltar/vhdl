@@ -1,13 +1,12 @@
 ENTITY ps2_keyboard IS
  Generic (
-          deb_cycles: INTEGER := 200; -- 4us for debouncer (@ 50MHz)
-			 idle_cycles: INTEGER := 3000); -- 60us >1\2 period ps2_clk )
-			 
+		deb_cycles: INTEGER := 200; 
+		idle_cycles: INTEGER := 3000); 	 
  PORT ( 
-       clk: in BIT;  -- system clock (50MHz)
-		 ps2clk: in bit; -- clk from keyboard ( 10-17 khz)
-		 ps2data: in bit; -- data from keyboard
-		 ssd: out BIT_VECTOR(6 downto 0)); -- data out to ssd
+		clk: in BIT;  
+		ps2clk: in bit; 
+		ps2data: in bit; 
+		tecla_digitada: out BIT_VECTOR(6 downto 0)); 
 END ps2_keyboard;
 
 ----------------------------------------------------------------------
@@ -26,7 +25,7 @@ ARCHITECTURE ps2_keyboard OF ps2_keyboard IS
 	 variable count: integer range 0 to deb_cycles;
 	begin
     if(clk'event and clk = '1') then
-	    if ( deb_ps2clk =ps2clk) then
+	    if (deb_ps2clk =ps2clk) then
 		   count := 0 ;
 		 else
 		   count := count + 1 ;
