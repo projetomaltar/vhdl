@@ -30,7 +30,7 @@ ENTITY projeto IS
 	);
 End projeto;
 -------------------------------------------------------------------
-ARCHITECTURE comportamental OF video_3 IS
+ARCHITECTURE comportamental OF projeto IS
 
 	SIGNAL Hactive, Vactive, dena: std_LOGIC;
 	signal Hcount,Vcount: std_logic_vector(9 downto 0);
