@@ -25,10 +25,11 @@ ENTITY projeto IS
 		ng3: INTEGER := 59
 	); 
 	PORT (
-		CLK,ps2clk,ps2data  : IN STD_LOGIC; -- Clock de 50MHZ da placa
+		CLK,ps2clk,ps2data  : IN STD_LOGIC; 
 		pixel_clk           : BUFFER STD_LOGIC; -- Clock de video
 		Hsync, Vsync        : BUFFER STD_LOGIC; -- Sincronia vertical e horizontal
-		R, G, B             : OUT STD_LOGIC_VECTOR( 3 DOWNTO 0) -- Define R,G e B como vetores de 4 bits(intensidade da respectiva cor)
+		R, G, B             : OUT STD_LOGIC_VECTOR( 3 DOWNTO 0); -- Define R,G e B como vetores de 4 bits(intensidade da respectiva cor)
+		tecla_digitada: out BIT_VECTOR(6 downto 0) -- Vetor de 7 bits da saida do teclado
 	);
 End projeto;
 -------------------------------------------------------------------
